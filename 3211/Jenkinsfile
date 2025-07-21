@@ -13,11 +13,11 @@ pipeline {
         APP_VERSION = '3.0.0'
         CLASS_NUM = '3211'
     }
-    
+
     stages {
         stage('소스파일 체크아웃') {
             steps {
-                git branch: "${APP_VERSION}", url: "${APP_GITHUB_URL}"
+                git credentialsId: 'github_token', branch: "${APP_VERSION}", url: "${APP_GITHUB_URL}"
             }
         }
 
@@ -30,10 +30,15 @@ pipeline {
 
         stage('릴리즈파일 체크아웃') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']],
+                checkout scmGit(
+                    branches: [[name: '*/main']],
                     extensions: [[$class: 'SparseCheckoutPaths',
-                    sparseCheckoutPaths: [[path: "/${CLASS_NUM}"]]]],
-                    userRemoteConfigs: [[url: "${RELEASE_GITHUB_URL}"]])
+                                  sparseCheckoutPaths: [[path: "/${CLASS_NUM}"]]]],
+                    userRemoteConfigs: [[
+                        url: "${RELEASE_GITHUB_URL}",
+                        credentialsId: 'github_token'
+                    ]]
+                )
             }
         }
 
